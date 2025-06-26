@@ -44,6 +44,7 @@ namespace ST.GridBuilder
                 gridMap.gridData.ResetCells();
                 GenerateObstacle(gridMap);
                 GenerateBuilding(gridMap);
+                gridMap.gridData.ResetFlowField();
                 EditorUtility.SetDirty(gridMap);
 
                 GridMapLines lines = FindObjectOfType<GridMapLines>();
@@ -101,7 +102,7 @@ namespace ST.GridBuilder
             Placement[] buildings = FindObjectsOfType<Placement>();
             foreach (Placement building in buildings)
             {
-                Vector3Int index = gridMap.ConvertToIndex(building.transform.position);
+                IndexV2 index = gridMap.ConvertToIndex(building.transform.position);
                 if (!gridMap.gridData.CanPut(index.x, index.z, building.placementData)) {
                     continue;
                 }

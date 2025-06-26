@@ -98,7 +98,7 @@ namespace ST.GridBuilder
             {
                 if (RaycastTerrain(touchPosition, out Vector3 pos))
                 {
-                    Vector3Int index = gridMap.ConvertToIndex(pos + dragOffset);
+                    IndexV2 index = gridMap.ConvertToIndex(pos + dragOffset);
                     int targetLevel = gridMap.gridData.GetShapeLevelCount(index.x, index.z, dragPlacement.placementData);
                     dragPlacement.SetMovePosition(gridMap.GetLevelPosition(index.x, index.z, targetLevel));
                     if (gridMapIndicator) {
@@ -115,7 +115,7 @@ namespace ST.GridBuilder
                 dragPlacement.ResetPreviewMaterial();
                 if (RaycastTerrain(touchPosition, out Vector3 pos))
                 {
-                    Vector3Int index = gridMap.ConvertToIndex(pos + dragOffset);
+                    IndexV2 index = gridMap.ConvertToIndex(pos + dragOffset);
                     if (gridMap.gridData.CanPut(index.x, index.z, dragPlacement.placementData))
                     {
                         if (isNewBuilding)
@@ -150,6 +150,7 @@ namespace ST.GridBuilder
                 if (gridMapIndicator) {
                     gridMapIndicator.ClearIndicator();
                 }
+                gridMap.gridData.ResetFlowField();
             }
         }
         

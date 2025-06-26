@@ -1,6 +1,6 @@
 {
     "name": "GridBuilder.View",
-    "rootNamespace": "",
+    "rootNamespace": "ST.GridBuilder",
     "references": [
         "GUID:250538599349741c5b1d7dafcd7deb38"
     ],

@@ -13,6 +13,9 @@ namespace ST.GridBuilder
         [MemoryPackInclude] public List<long> contentIds;
         [MemoryPackInclude] public List<PlacedLayer> contentTypes;
         [MemoryPackInclude] public bool isObstacle;
+        [MemoryPackInclude] public IndexV2 index = new IndexV2(-1, -1);
+        [MemoryPackInclude] public IndexV2 parent = new IndexV2(-1, -1);
+        [MemoryPackInclude] public int distance = int.MaxValue;
 
         public CellData()
         {

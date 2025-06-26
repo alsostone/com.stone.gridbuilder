@@ -3,6 +3,19 @@ using MemoryPack;
 
 namespace ST.GridBuilder
 {
+    [Serializable]
+    public struct IndexV2
+    {
+        public int x;
+        public int z;
+
+        public IndexV2(int x,int z)
+        {
+            this.x = x;
+            this.z = z;
+        }
+    }
+    
     [MemoryPackable]
     [Serializable]
     public partial class GridData
@@ -25,7 +38,8 @@ namespace ST.GridBuilder
                 {
                     for (int z = 0; z < zLength; z++)
                     {
-                        cells[x + z * xLength] = new CellData();
+                        CellData data = new CellData { index = new IndexV2(x, z) };
+                        cells[x + z * xLength] = data;
                     }
                 }
             }

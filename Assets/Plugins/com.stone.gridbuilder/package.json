@@ -2,7 +2,7 @@
   "name": "com.stone.gridbuilder",
   "version": "1.0.0",
   "displayName": "Grid Builder",
-  "description": "This package provide simple grid builder",
+  "description": "A serializable placement system that supports flow field pathfinding",
   "unity": "2022.3",
   "unityRelease": "0b5",
   "dependencies": {},

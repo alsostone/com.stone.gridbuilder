@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,11 +14,11 @@ namespace ST.GridBuilder
 
         [SerializeField, HideInInspector] public GridData gridData = new();
 
-        public Vector3Int ConvertToIndex(Vector3 point)
+        public IndexV2 ConvertToIndex(Vector3 point)
         {
             point -= GetPosition();
             point /= gridData.cellSize;
-            return new Vector3Int((int)point.x, (int)point.y, (int)point.z);
+            return new IndexV2((int)point.x, (int)point.z);
         }
 
         public Vector3 GetCellPosition(int x, int z)
@@ -152,8 +153,37 @@ namespace ST.GridBuilder
             {
                 Gizmos.DrawSphere(point, 0.1f);
             }
+
+            Gizmos.color = Color.red;
+            OnDrawArrow();
         }
-    #endif
+
+        private void OnDrawArrow()
+        {
+            int xLength = gridData.xLength;
+            int zLength = gridData.zLength;
+            for (int x = 0; x < xLength; ++x)
+            {
+                for (int z = 0; z < zLength; z++)
+                {
+                    CellData data = gridData.cells[x + z * xLength];
+                    if (data.parent.x < 0 || data.parent.z < 0)
+                        continue;
+
+                    Vector3 direction = new Vector3(data.parent.x - data.index.x, 0, data.parent.z - data.index.z);
+                    Vector3 from = GetCellPosition(x, z) - direction * 0.25f;
+                    Vector3 to = GetCellPosition(x, z) + direction * 0.25f;
+                    
+                    Gizmos.DrawLine(from, to);
+                    Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 + 20, 0) * new Vector3(0, 0, 1);
+                    Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 - 20, 0) * new Vector3(0, 0, 1);
+                    Gizmos.DrawRay(to, right * 0.25f);
+                    Gizmos.DrawRay(to, left * 0.25f);
+                }
+            }
+        }
+        
+#endif
         
     }
 }
