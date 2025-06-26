@@ -1,41 +1,49 @@
 using System;
 using System.Collections.Generic;
+using MemoryPack;
 
-[Serializable]
-public class CellData
+namespace ST.GridBuilder
 {
-    public bool isFill => isObstacle || contentIds.Count > 0;
+    [MemoryPackable]
+    [Serializable]
+    public partial class CellData
+    {
+        [MemoryPackIgnore] public bool IsFill => isObstacle || contentIds.Count > 0;
     
-    public List<long> contentIds;
-    public List<PlacedLayer> contentTypes;
-    public bool isObstacle;
+        [MemoryPackInclude] public List<long> contentIds;
+        [MemoryPackInclude] public List<PlacedLayer> contentTypes;
+        [MemoryPackInclude] public bool isObstacle;
 
-    public CellData()
-    {
-        contentIds = new List<long>();
-    }
-    
-    public CellData(List<long> buildingIds)
-    {
-        this.contentIds = buildingIds;
-    }
-    
-    public bool CanPut(PlacementData placementData)
-    {
-        if (isObstacle) {
-            return false;
+        public CellData()
+        {
+            contentIds = new List<long>();
+            contentTypes = new List<PlacedLayer>();
         }
+    
+        [MemoryPackConstructor]
+        public CellData(List<long> contentIds, List<PlacedLayer> contentTypes)
+        {
+            this.contentIds = contentIds;
+            this.contentTypes = contentTypes;
+        }
+    
+        public bool CanPut(PlacementData placementData)
+        {
+            if (isObstacle) {
+                return false;
+            }
         
-        if (contentIds.Count > 0) {
-            if (contentIds[^1] == placementData.Id)
-                return true;
-            if ((placementData.placedLayer & contentTypes[^1]) == 0)
-                return false;
-        } else {
-            if ((placementData.placedLayer & PlacedLayer.Map) == 0)
-                return false;
+            if (contentIds.Count > 0) {
+                if (contentIds[^1] == placementData.id)
+                    return true;
+                if ((placementData.placedLayer & contentTypes[^1]) == 0)
+                    return false;
+            } else {
+                if ((placementData.placedLayer & PlacedLayer.Map) == 0)
+                    return false;
+            }
+            return true;
         }
-        return true;
     }
-    
+
 }

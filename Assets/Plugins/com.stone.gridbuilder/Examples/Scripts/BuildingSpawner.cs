@@ -1,7 +1,7 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace ET
+namespace ST.GridBuilder
 {
     public class BuildingSpawner : MonoBehaviour
     {
