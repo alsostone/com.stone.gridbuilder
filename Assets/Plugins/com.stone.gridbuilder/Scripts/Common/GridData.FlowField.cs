@@ -101,15 +101,15 @@ namespace ST.GridBuilder
             visit.Clear();
         }
         
-        private void GenerateDijkstraData(IndexV2 destination)
+        private void GenerateDijkstraData(IndexV2 dest)
         {
-            CellData dest = GetCell(destination.x, destination.z);
-            if (dest == null || dest.IsFill) {
+            CellData cellData = GetCell(dest.x, dest.z);
+            if (cellData == null || cellData.IsFill) {
                 return;
             }
 
-            dest.distance = 0;
-            visit.Enqueue(dest);
+            cellData.distance = 0;
+            visit.Enqueue(cellData);
             
             while (visit.Count > 0)
             {
