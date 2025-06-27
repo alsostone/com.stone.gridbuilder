@@ -122,11 +122,13 @@ namespace ST.GridBuilder
                         {
                             dragPlacement.placementData.id = gridMap.gridData.GetNextGuid(dragPlacement.placementData);
                             gridMap.gridData.Put(index.x, index.z, dragPlacement.placementData);
+                            gridMap.gridData.ResetFlowField();
                         }
                         else if (index.x != dragPlacement.placementData.x || index.z != dragPlacement.placementData.z)
                         {
                             gridMap.gridData.Take(dragPlacement.placementData);
                             gridMap.gridData.Put(index.x, index.z, dragPlacement.placementData);
+                            gridMap.gridData.ResetFlowField();
                         }
                         dragPlacement.SetPutPosition(gridMap.GetPutPosition(dragPlacement.placementData));
                     }
@@ -150,7 +152,6 @@ namespace ST.GridBuilder
                 if (gridMapIndicator) {
                     gridMapIndicator.ClearIndicator();
                 }
-                gridMap.gridData.ResetFlowField();
             }
         }
         
@@ -220,7 +221,7 @@ namespace ST.GridBuilder
             return false;
         }
 
-        public bool RaycastTarget(Vector3 position, out GameObject target)
+        private bool RaycastTarget(Vector3 position, out GameObject target)
         {
             target = null;
             

@@ -44,7 +44,6 @@ namespace ST.GridBuilder
                 gridMap.gridData.ResetCells();
                 GenerateObstacle(gridMap);
                 GenerateBuilding(gridMap);
-                gridMap.gridData.ResetFlowField();
                 EditorUtility.SetDirty(gridMap);
 
                 GridMapLines lines = FindObjectOfType<GridMapLines>();

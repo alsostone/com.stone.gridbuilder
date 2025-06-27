@@ -7,20 +7,95 @@ namespace ST.GridBuilder
     public partial class GridData
     {
         [MemoryPackIgnore] private Queue<CellData> visit = new Queue<CellData>();
+        [MemoryPackInclude] private IndexV2 destination = new IndexV2(-1, -1);
 
+        public void SetDestination(FieldV2 position)
+        {
+            IndexV2 indexCurrent = ConvertToIndex(position);
+            destination = GetValidDestination(indexCurrent);
+            ResetFlowField();
+        }
+        
         public void ResetFlowField()
         {
+            if (destination.x < 0 || destination.x >= xLength || destination.z < 0 || destination.z >= zLength) {
+                return;
+            }
             ClearDijkstraData();
-            IndexV2 dest = GetValidDestination(new IndexV2(xLength / 2, zLength / 2));
-            GenerateDijkstraData(dest);
+            GenerateDijkstraData(destination);
             GenerateFlowField();
         }
         
+        public FieldV2 GetFieldVector(FieldV2 position)
+        {
+            IndexV2 indexCurrent = ConvertToIndex(position);
+            if (indexCurrent.x < 0 || indexCurrent.x >= xLength || indexCurrent.z < 0 || indexCurrent.z >= zLength) {
+                return new FieldV2(0, 0);
+            }
+            float half = cellSize / 2;
+            
+            FieldV2 v1 = new FieldV2(0, 0);
+            int xLeft = (int)((position.x - half) / cellSize);
+            int xRight = (int)((position.x + half) / cellSize);
+            if (xLeft >= 0 && xRight < xLength)
+            {
+                CellData cellLeft = cells[xLeft + indexCurrent.z * xLength];
+                CellData cellRight = cells[xRight + indexCurrent.z * xLength];
+                
+                if (cellLeft.distance != int.MaxValue && cellRight.distance != int.MaxValue)
+                    v1 = cellLeft.direction.Lerp(cellRight.direction, (position.x - (cellLeft.index.x * cellSize + half)) / cellSize);
+                else if (cellLeft.distance != int.MaxValue)
+                    v1 = cellLeft.direction;
+                else if (cellRight.distance != int.MaxValue)
+                    v1 = cellRight.direction;
+            }
+            else if (xLeft < 0)
+            {
+                CellData cellRight = cells[xRight + indexCurrent.z * xLength];
+                if (cellRight.distance != int.MaxValue)
+                    v1 = cellRight.direction;
+            }
+            else if (xRight >= xLength)
+            {
+                CellData cellLeft = cells[xLeft + indexCurrent.z * xLength];
+                if (cellLeft.distance != int.MaxValue)
+                    v1 = cellLeft.direction;
+            }
+            
+            FieldV2 v2 = new FieldV2(0, 0);
+            int zTop = (int)((position.z + half) / cellSize);
+            int zBottom = (int)((position.z - half) / cellSize);
+            if (zTop >= 0 && zBottom < zLength)
+            {
+                CellData cellTop = cells[indexCurrent.x + zTop * xLength];
+                CellData cellBottom = cells[indexCurrent.x + zBottom * xLength];
+                
+                if (cellTop.distance != int.MaxValue && cellBottom.distance != int.MaxValue)
+                    v2 = cellTop.direction.Lerp(cellBottom.direction, (position.z - (cellTop.index.z * cellSize + half)) / cellSize);
+                else if (cellTop.distance != int.MaxValue)
+                    v2 = cellTop.direction;
+                else if (cellBottom.distance != int.MaxValue)
+                    v2 = cellBottom.direction;
+            }
+            else if (zTop < 0)
+            {
+                CellData cellBottom = cells[indexCurrent.x + zBottom * xLength];
+                if (cellBottom.distance != int.MaxValue)
+                    v2 = cellBottom.direction;
+            }
+            else if (zBottom >= zLength)
+            {
+                CellData cellTop = cells[indexCurrent.x + zTop * xLength];
+                if (cellTop.distance != int.MaxValue)
+                    v2 = cellTop.direction;
+            }
+            return v1.Lerp(v2, (position.z - (indexCurrent.z * cellSize + half)) / cellSize).Normalize();
+        }
+
         private void ClearDijkstraData()
         {
             foreach (var cell in cells)
             {
-                cell.parent = new IndexV2(-1, -1);
                 cell.distance = int.MaxValue;
             }
             visit.Clear();
@@ -106,15 +181,15 @@ namespace ST.GridBuilder
                         continue;
 
                     distance = neighbour.distance;
-                    cell.parent = new IndexV2(nx, nz);
+                    cell.direction = new FieldV2(neighbour.index.x - cell.index.x, neighbour.index.z - cell.index.z);
                 }
             }
         }
         
-        private IndexV2 GetValidDestination(IndexV2 destination)
+        private IndexV2 GetValidDestination(IndexV2 dest)
         {
-            CellData dest = GetCell(destination.x, destination.z);
-            if (dest == null || dest.IsFill)
+            CellData cellData = GetCell(dest.x, dest.z);
+            if (cellData == null || cellData.IsFill)
             {
                 // Find the nearest valid cell
                 int minDistance = int.MaxValue;
@@ -126,7 +201,7 @@ namespace ST.GridBuilder
                         CellData cell = GetCell(x, z);
                         if (cell != null && !cell.IsFill)
                         {
-                            int distance = Math.Abs(x - destination.x) + Math.Abs(z - destination.z);
+                            int distance = Math.Abs(x - dest.x) + Math.Abs(z - dest.z);
                             if (distance < minDistance)
                             {
                                 minDistance = distance;
@@ -137,7 +212,7 @@ namespace ST.GridBuilder
                 }
                 return nearest;
             }
-            return destination;
+            return dest;
         }
     }
 }

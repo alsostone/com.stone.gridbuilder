@@ -14,6 +14,19 @@ namespace ST.GridBuilder
             this.x = x;
             this.z = z;
         }
+        
+        public bool Equals(IndexV2 other)
+        {
+            return x == other.x && z == other.z;
+        }
+        public override bool Equals(object obj)
+        {
+            return obj is IndexV2 other && Equals(other);
+        }
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(x, z);
+        }
     }
     
     [MemoryPackable]
@@ -35,27 +48,28 @@ namespace ST.GridBuilder
             {
                 cells = new CellData[xLength * zLength];
                 for (int x = 0; x < xLength; x++)
+                for (int z = 0; z < zLength; z++)
                 {
-                    for (int z = 0; z < zLength; z++)
-                    {
-                        CellData data = new CellData { index = new IndexV2(x, z) };
-                        cells[x + z * xLength] = data;
-                    }
+                    CellData data = new CellData { index = new IndexV2(x, z) };
+                    cells[x + z * xLength] = data;
                 }
             }
             else
             {
                 for (int x = 0; x < xLength; x++)
+                for (int z = 0; z < zLength; z++)
                 {
-                    for (int z = 0; z < zLength; z++)
-                    {
-                        CellData cellData = cells[x + z * xLength];
-                        cellData.isObstacle = false;
-                        cellData.contentIds.Clear();
-                        cellData.contentTypes.Clear();
-                    }
+                    CellData cellData = cells[x + z * xLength];
+                    cellData.isObstacle = false;
+                    cellData.contentIds.Clear();
+                    cellData.contentTypes.Clear();
                 }
             }
+        }
+        
+        public IndexV2 ConvertToIndex(FieldV2 position)
+        {
+            return new IndexV2((int)(position.x / cellSize), (int)(position.z / cellSize));
         }
 
         public CellData GetCell(int x, int z)
@@ -78,49 +92,44 @@ namespace ST.GridBuilder
         public bool CanTake(PlacementData placementData)
         {
             for (int x1 = 0; x1 < PlacementData.width; x1++)
+            for (int z1 = 0; z1 < PlacementData.height; z1++)
             {
-                for (int z1 = 0; z1 < PlacementData.height; z1++)
+                if (placementData.points[x1 + z1 * PlacementData.width])
                 {
-                    if (placementData.points[x1 + z1 * PlacementData.width])
+                    int x2 = placementData.x + x1 - PlacementData.xOffset;
+                    int z2 = placementData.z + z1 - PlacementData.zOffset;
+                    if (!IsInside(x2, z2))
                     {
-                        int x2 = placementData.x + x1 - PlacementData.xOffset;
-                        int z2 = placementData.z + z1 - PlacementData.zOffset;
-                        if (!IsInside(x2, z2))
-                        {
-                            return false;
-                        }
+                        return false;
+                    }
 
-                        CellData data = cells[x2 + z2 * xLength];
-                        if (data.contentIds.Count == 0)
-                        {
-                            return false;
-                        }
+                    CellData data = cells[x2 + z2 * xLength];
+                    if (data.contentIds.Count == 0)
+                    {
+                        return false;
+                    }
 
-                        if (data.contentIds[^1] != placementData.id)
-                        {
-                            return false;
-                        }
+                    if (data.contentIds[^1] != placementData.id)
+                    {
+                        return false;
                     }
                 }
             }
-
             return true;
         }
 
         public void Take(PlacementData placementData)
         {
             for (int x1 = 0; x1 < PlacementData.width; x1++)
+            for (int z1 = 0; z1 < PlacementData.height; z1++)
             {
-                for (int z1 = 0; z1 < PlacementData.height; z1++)
+                if (placementData.points[x1 + z1 * PlacementData.width])
                 {
-                    if (placementData.points[x1 + z1 * PlacementData.width])
-                    {
-                        int x2 = placementData.x + x1 - PlacementData.xOffset;
-                        int z2 = placementData.z + z1 - PlacementData.zOffset;
-                        CellData cellData = cells[x2 + z2 * xLength];
-                        cellData.contentIds.RemoveAt(cellData.contentIds.Count - 1);
-                        cellData.contentTypes.RemoveAt(cellData.contentTypes.Count - 1);
-                    }
+                    int x2 = placementData.x + x1 - PlacementData.xOffset;
+                    int z2 = placementData.z + z1 - PlacementData.zOffset;
+                    CellData cellData = cells[x2 + z2 * xLength];
+                    cellData.contentIds.RemoveAt(cellData.contentIds.Count - 1);
+                    cellData.contentTypes.RemoveAt(cellData.contentTypes.Count - 1);
                 }
             }
         }
@@ -129,59 +138,54 @@ namespace ST.GridBuilder
         {
             int level = -1;
             for (int x1 = 0; x1 < PlacementData.width; x1++)
+            for (int z1 = 0; z1 < PlacementData.height; z1++)
             {
-                for (int z1 = 0; z1 < PlacementData.height; z1++)
+                if (placementData.points[x1 + z1 * PlacementData.width])
                 {
-                    if (placementData.points[x1 + z1 * PlacementData.width])
+                    int x2 = x + x1 - PlacementData.xOffset;
+                    int z2 = z + z1 - PlacementData.zOffset;
+                    CellData data = GetCell(x2, z2);
+                    if (data == null || !data.CanPut(placementData))
                     {
-                        int x2 = x + x1 - PlacementData.xOffset;
-                        int z2 = z + z1 - PlacementData.zOffset;
-                        CellData data = GetCell(x2, z2);
-                        if (data == null || !data.CanPut(placementData))
-                        {
-                            return false;
-                        }
+                        return false;
+                    }
 
-                        int count = data.contentIds.Count;
-                        if (data.contentIds.IndexOf(placementData.id) != -1)
-                        {
-                            count -= 1;
-                        }
+                    int count = data.contentIds.Count;
+                    if (data.contentIds.IndexOf(placementData.id) != -1)
+                    {
+                        count -= 1;
+                    }
 
-                        if (!CanPutLevel(count, placementData))
-                        {
-                            return false;
-                        }
+                    if (!CanPutLevel(count, placementData))
+                    {
+                        return false;
+                    }
 
-                        if (level == -1)
-                        {
-                            level = count;
-                        }
-                        else if (count != level)
-                        {
-                            return false;
-                        }
+                    if (level == -1)
+                    {
+                        level = count;
+                    }
+                    else if (count != level)
+                    {
+                        return false;
                     }
                 }
             }
-
             return true;
         }
 
         public void Put(int x, int z, PlacementData placementData)
         {
             for (int x1 = 0; x1 < PlacementData.width; x1++)
+            for (int z1 = 0; z1 < PlacementData.height; z1++)
             {
-                for (int z1 = 0; z1 < PlacementData.height; z1++)
+                if (placementData.points[x1 + z1 * PlacementData.width])
                 {
-                    if (placementData.points[x1 + z1 * PlacementData.width])
-                    {
-                        int x2 = x + x1 - PlacementData.xOffset;
-                        int z2 = z + z1 - PlacementData.zOffset;
-                        CellData cellData = cells[x2 + z2 * xLength];
-                        cellData.contentIds.Add(placementData.id);
-                        cellData.contentTypes.Add(placementData.placementType);
-                    }
+                    int x2 = x + x1 - PlacementData.xOffset;
+                    int z2 = z + z1 - PlacementData.zOffset;
+                    CellData cellData = cells[x2 + z2 * xLength];
+                    cellData.contentIds.Add(placementData.id);
+                    cellData.contentTypes.Add(placementData.placementType);
                 }
             }
 
