@@ -18,6 +18,14 @@ namespace ST.GridBuilder
                 return;
             }
             GUILayout.BeginHorizontal();
+            GUILayout.Label("xPosition", GUILayout.Width(EditorGUIUtility.labelWidth));
+            gridMap.gridData.xPosition = EditorGUILayout.IntField(gridMap.gridData.xPosition);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("zPosition", GUILayout.Width(EditorGUIUtility.labelWidth));
+            gridMap.gridData.zPosition = EditorGUILayout.IntField(gridMap.gridData.zPosition);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
             GUILayout.Label("xLength", GUILayout.Width(EditorGUIUtility.labelWidth));
             gridMap.gridData.xLength = EditorGUILayout.IntSlider(gridMap.gridData.xLength, 16, 96);
             GUILayout.EndHorizontal();
@@ -41,6 +49,7 @@ namespace ST.GridBuilder
             
             if (GUI.changed)
             {
+                gridMap.transform.position = new Vector3(gridMap.gridData.xPosition, 0, gridMap.gridData.zPosition);
                 gridMap.gridData.ResetCells();
                 GenerateObstacle(gridMap);
                 GenerateBuilding(gridMap);

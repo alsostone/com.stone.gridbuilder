@@ -761,6 +761,8 @@ MonoBehaviour:
     m_Bits: 8448
   yHeight: 0.01
   gridData:
+    xPosition: 0
+    zPosition: 0
     xLength: 63
     zLength: 40
     cellSize: 1

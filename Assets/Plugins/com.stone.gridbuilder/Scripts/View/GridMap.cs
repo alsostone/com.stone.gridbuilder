@@ -16,42 +16,38 @@ namespace ST.GridBuilder
 
         public IndexV2 ConvertToIndex(Vector3 position)
         {
-            position -= GetPosition();
-            position /= gridData.cellSize;
-            return new IndexV2((int)position.x, (int)position.z);
+            FieldV2 pos = position.ToFieldV2();
+            return gridData.ConvertToIndex(ref pos);
         }
-
+        
         public Vector3 GetCellPosition(int x, int z)
         {
-            float offset = gridData.cellSize * 0.5f;
-            return transform.position + new Vector3(gridData.cellSize * x + offset, yHeight, gridData.cellSize * z + offset);
+            return gridData.GetCellPosition(x, z).ToVector3();
         }
 
         public Vector3 GetPosition()
         {
-            return transform.position;
+            return new Vector3(gridData.xPosition, 0, gridData.zPosition);
         }
         
         public void SetDestination(Vector3 position)
         {
-            position -= GetPosition();
             gridData.SetDestination(new FieldV2(position.x, position.z));
         }
 
         public Vector3 GetFieldVector(Vector3 position)
         {
-            position -= GetPosition();
             FieldV2 v2 = gridData.GetFieldVector(new FieldV2(position.x, position.z));
             return new Vector3(v2.x, 0, v2.z);
         }
         
         public Vector3 RaycastPosition(int x, int z)
         {
-            Vector3 pos = transform.position + new Vector3(gridData.cellSize * x, 0, gridData.cellSize * z);
+            Vector3 pos = GetPosition() + new Vector3(gridData.cellSize * x, 0, gridData.cellSize * z);
             if (Physics.Raycast(new Vector3(pos.x, raycastHeight, pos.z), Vector3.down, out RaycastHit hit, raycastHeight, terrainMask)) {
                 pos.y = hit.point.y + yHeight;
             } else {
-                pos.y = GetPosition().y + yHeight;
+                pos.y = yHeight;
             }
             return pos;
         }
@@ -61,7 +57,7 @@ namespace ST.GridBuilder
             if (Physics.Raycast(new Vector3(pos.x, raycastHeight, pos.z), Vector3.down, out RaycastHit hit, raycastHeight, terrainMask)) {
                 pos.y = hit.point.y + yHeight;
             } else {
-                pos.y = GetPosition().y + yHeight;
+                pos.y = yHeight;
             }
             return pos;
         }
@@ -74,7 +70,7 @@ namespace ST.GridBuilder
             float x = gridData.cellSize * (placementData.x + 0.5f);
             float y = gridData.cellSize * level;
             float z = gridData.cellSize * (placementData.z + 0.5f);
-            return transform.position + new Vector3(x, y, z);
+            return GetPosition() + new Vector3(x, y, z);
         }
         
         public Vector3 GetLevelPosition(int x, int z, int level)
@@ -82,7 +78,7 @@ namespace ST.GridBuilder
             float x1 = gridData.cellSize * (x + 0.5f);
             float y1 = gridData.cellSize * level;
             float z1 = gridData.cellSize * (z + 0.5f);
-            return transform.position + new Vector3(x1, y1, z1);
+            return GetPosition() + new Vector3(x1, y1, z1);
         }
         
     #if UNITY_EDITOR

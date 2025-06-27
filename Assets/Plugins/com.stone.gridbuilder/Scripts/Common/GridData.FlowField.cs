@@ -11,7 +11,7 @@ namespace ST.GridBuilder
 
         public void SetDestination(FieldV2 position)
         {
-            IndexV2 indexCurrent = ConvertToIndex(position);
+            IndexV2 indexCurrent = ConvertToIndex(ref position);
             destination = GetValidDestination(indexCurrent);
             ResetFlowField();
         }
@@ -28,7 +28,7 @@ namespace ST.GridBuilder
         
         public FieldV2 GetFieldVector(FieldV2 position)
         {
-            IndexV2 indexCurrent = ConvertToIndex(position);
+            IndexV2 indexCurrent = ConvertToIndex(ref position);
             if (indexCurrent.x < 0 || indexCurrent.x >= xLength || indexCurrent.z < 0 || indexCurrent.z >= zLength) {
                 return new FieldV2(0, 0);
             }

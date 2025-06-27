@@ -155,7 +155,7 @@ namespace ST.GridBuilder
             }
         }
         
-        public void ClearPlacementBuilding()
+        public void ClearPlacementObject()
         {
             if (dragPlacement)
             {
@@ -170,7 +170,7 @@ namespace ST.GridBuilder
             }
         }
         
-        public void SetPlacementBuilding(Placement placement)
+        public void SetPlacementObject(Placement placement)
         {
             if (dragPlacement)
             {

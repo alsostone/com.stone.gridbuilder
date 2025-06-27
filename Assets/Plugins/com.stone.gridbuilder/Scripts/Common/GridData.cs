@@ -33,6 +33,8 @@ namespace ST.GridBuilder
     [Serializable]
     public partial class GridData
     {
+        [MemoryPackInclude] public int xPosition = 0;
+        [MemoryPackInclude] public int zPosition = 0;
         [MemoryPackInclude] public int xLength = 16;
         [MemoryPackInclude] public int zLength = 16;
         [MemoryPackInclude] public float cellSize = 1;
@@ -67,16 +69,21 @@ namespace ST.GridBuilder
             }
         }
         
-        public IndexV2 ConvertToIndex(FieldV2 position)
+        public IndexV2 ConvertToIndex(ref FieldV2 position)
         {
-            return new IndexV2((int)(position.x / cellSize), (int)(position.z / cellSize));
+            return new IndexV2((int)((position.x - xPosition) / cellSize), (int)((position.z - zPosition) / cellSize));
         }
-
+        
         public CellData GetCell(int x, int z)
         {
             if (x >= 0 && z >= 0 && x < xLength && z < zLength)
                 return cells[x + z * xLength];
             return null;
+        }
+        
+        public FieldV2 GetCellPosition(int x, int z)
+        {
+            return new FieldV2(cellSize * (x + 0.5f) + xPosition, cellSize * (z + 0.5f) + zPosition);
         }
 
         public bool IsInside(int x, int z)

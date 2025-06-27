@@ -20,7 +20,7 @@ namespace ST.GridBuilder
             {
                 GameObject go = Instantiate(buildingPrefab[Random.Range(0, buildingPrefab.Length)]);
                 Placement placement = go.GetComponent<Placement>();
-                gridBuilder.SetPlacementBuilding(placement);
+                gridBuilder.SetPlacementObject(placement);
             }
 
             if (Input.GetKeyDown(KeyCode.Space))
