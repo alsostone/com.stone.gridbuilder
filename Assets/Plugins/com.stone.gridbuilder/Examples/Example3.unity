@@ -25968,7 +25968,7 @@ MonoBehaviour:
       direction:
         x: 0
         z: 0
-    currentNextGuid: 3
+    currentGuid: 3
 --- !u!4 &1016826418
 Transform:
   m_ObjectHideFlags: 0

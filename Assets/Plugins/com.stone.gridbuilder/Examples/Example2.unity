@@ -1642,7 +1642,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!43 &846680253
+--- !u!43 &722052981
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1845,6 +1845,8 @@ MonoBehaviour:
     m_Bits: 8192
   yHeight: 0.01
   gridData:
+    xPosition: 0
+    zPosition: 0
     xLength: 23
     zLength: 22
     cellSize: 1
@@ -6910,7 +6912,7 @@ MonoBehaviour:
       direction:
         x: 0
         z: 0
-    currentNextGuid: 0
+    currentGuid: 0
 --- !u!4 &1016826418
 Transform:
   m_ObjectHideFlags: 0
@@ -7023,7 +7025,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1219886279}
-  m_Mesh: {fileID: 846680253}
+  m_Mesh: {fileID: 722052981}
 --- !u!1 &1899506827
 GameObject:
   m_ObjectHideFlags: 0

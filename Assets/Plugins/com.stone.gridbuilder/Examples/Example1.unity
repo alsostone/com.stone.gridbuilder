@@ -434,6 +434,8 @@ MonoBehaviour:
     m_Bits: 8192
   yHeight: 0.01
   gridData:
+    xPosition: 0
+    zPosition: 0
     xLength: 24
     zLength: 23
     cellSize: 1
@@ -5959,7 +5961,7 @@ MonoBehaviour:
       direction:
         x: 0
         z: 0
-    currentNextGuid: 0
+    currentGuid: 0
 --- !u!4 &1016826418
 Transform:
   m_ObjectHideFlags: 0
