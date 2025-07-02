@@ -1,8 +1,10 @@
+using System;
 using System.IO;
 using MemoryPack;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 
 namespace ST.GridBuilder
 {
@@ -19,21 +21,28 @@ namespace ST.GridBuilder
                 EditorGUILayout.HelpBox("GridMap or GridData is not set.", MessageType.Error);
                 return;
             }
+            
+            Vector3 position = gridMap.transform.position;
+            gridMap.gridData.xPosition = (int)position.x;
+            gridMap.gridData.zPosition = (int)position.z;
+            
+            EditorGUI.BeginDisabledGroup(true);
             GUILayout.BeginHorizontal();
             GUILayout.Label("xPosition", GUILayout.Width(EditorGUIUtility.labelWidth));
-            gridMap.gridData.xPosition = EditorGUILayout.IntField(gridMap.gridData.xPosition);
+            EditorGUILayout.IntField(gridMap.gridData.xPosition);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("zPosition", GUILayout.Width(EditorGUIUtility.labelWidth));
-            gridMap.gridData.zPosition = EditorGUILayout.IntField(gridMap.gridData.zPosition);
+            EditorGUILayout.IntField(gridMap.gridData.zPosition);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
+            EditorGUI.EndDisabledGroup();
             GUILayout.Label("xLength", GUILayout.Width(EditorGUIUtility.labelWidth));
-            gridMap.gridData.xLength = EditorGUILayout.IntSlider(gridMap.gridData.xLength, 16, 96);
+            gridMap.gridData.xLength = EditorGUILayout.IntSlider(gridMap.gridData.xLength, 10, 100);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("zLength", GUILayout.Width(EditorGUIUtility.labelWidth));
-            gridMap.gridData.zLength = EditorGUILayout.IntSlider(gridMap.gridData.zLength, 16, 96);
+            gridMap.gridData.zLength = EditorGUILayout.IntSlider(gridMap.gridData.zLength, 10, 100);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("Cell Size", GUILayout.Width(EditorGUIUtility.labelWidth));
@@ -51,7 +60,6 @@ namespace ST.GridBuilder
             
             if (GUI.changed)
             {
-                gridMap.transform.position = new Vector3(gridMap.gridData.xPosition, 0, gridMap.gridData.zPosition);
                 gridMap.gridData.ResetCells();
                 GenerateObstacle(gridMap);
                 GenerateBuilding(gridMap);
@@ -79,7 +87,7 @@ namespace ST.GridBuilder
             {
                 byte[] gridBytes = MemoryPackSerializer.Serialize(gridMap.gridData);
                 var folder = EditorUtility.OpenFolderPanel("Save Folder Select", Application.dataPath, "");
-                File.WriteAllBytes(folder + "/GridData.bin", gridBytes);
+                File.WriteAllBytes($"{folder}/{SceneManager.GetActiveScene().name}.bytes", gridBytes);
             }
         }
         
@@ -93,7 +101,7 @@ namespace ST.GridBuilder
                     Vector3 pos = gridMap.GetCellPosition(x, z);
                     pos.y = gridMap.raycastHeight;
 
-                    var offset = gridData.cellSize / 2 * gridMap.raycastFineness;
+                    float offset = gridData.cellSize / 2.0f * gridMap.raycastFineness;
                     if (Physics.Raycast(pos + new Vector3(-offset, 0, -offset), Vector3.down, out RaycastHit _, gridMap.raycastHeight, gridMap.obstacleMask))
                     {
                         gridData.SetObstacle(x, z, true);
