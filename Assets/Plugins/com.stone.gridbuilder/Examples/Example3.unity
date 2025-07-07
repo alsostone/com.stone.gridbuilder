@@ -225,6 +225,11 @@ PrefabInstance:
       propertyPath: placementData.id
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 6178925463495704729, guid: dc83affa9d6044736a8613cc17a98906,
+        type: 3}
+      propertyPath: placementData.isNew
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc83affa9d6044736a8613cc17a98906, type: 3}
 --- !u!4 &115378939 stripped
@@ -514,6 +519,11 @@ PrefabInstance:
         type: 3}
       propertyPath: placementData.id
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6178925463495704729, guid: e540eeeea90fd4808be148374b95dd0c,
+        type: 3}
+      propertyPath: placementData.isNew
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e540eeeea90fd4808be148374b95dd0c, type: 3}
@@ -26086,6 +26096,11 @@ PrefabInstance:
       propertyPath: placementData.id
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6178925463495704729, guid: 113b4ee2df44d4cf389c313a3e88027e,
+        type: 3}
+      propertyPath: placementData.isNew
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 113b4ee2df44d4cf389c313a3e88027e, type: 3}
 --- !u!4 &1134010708 stripped
@@ -26155,7 +26170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cbfe7246a72444da88112d5a8f52e72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingPrefab:
+  gameObjects:
   - {fileID: 3117728376025562796, guid: dc83affa9d6044736a8613cc17a98906, type: 3}
   - {fileID: 3117728376025562796, guid: e540eeeea90fd4808be148374b95dd0c, type: 3}
   - {fileID: 3117728376025562796, guid: 113b4ee2df44d4cf389c313a3e88027e, type: 3}
