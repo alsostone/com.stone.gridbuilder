@@ -169,7 +169,7 @@ namespace ST.GridBuilder
             if (placement) {
                 dragPlacement = placement;
                 dragPlacement.SetPreviewMaterial();
-                dragOffset = Vector3.zero;
+                dragOffset = new Vector3(0, 0.5f, 0);
             }
         }
 
