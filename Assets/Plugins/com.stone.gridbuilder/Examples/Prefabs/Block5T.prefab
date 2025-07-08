@@ -382,7 +382,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56941c4d1c2b421fab67a8ba3d397bad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  putHeight: 0.5
   takeHeight: 0.5
   placementData:
     placementType: 2
