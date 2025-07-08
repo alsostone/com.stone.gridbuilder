@@ -21,7 +21,10 @@ namespace ST.GridBuilder
             if (gridMap == null)
                 gridMap = FindObjectOfType<GridMap>();
             if (gridMapIndicator == null)
+            {
                 gridMapIndicator = FindObjectOfType<GridMapIndicator>();
+                if (gridMapIndicator) gridMapIndicator.SetGridMap(gridMap);
+            }
         }
 
         private void Update()
@@ -189,6 +192,7 @@ namespace ST.GridBuilder
         {
             if (dragPlacement)
             {
+                dragPlacement.ResetPreviewMaterial();
                 if (dragPlacement.placementData.isNew) {
                     dragPlacement.Remove();
                 } else {
