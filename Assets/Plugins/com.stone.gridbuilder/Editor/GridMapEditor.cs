@@ -21,10 +21,8 @@ namespace ST.GridBuilder
                 EditorGUILayout.HelpBox("GridMap or GridData is not set.", MessageType.Error);
                 return;
             }
-
-            EditorGUI.BeginDisabledGroup(true);
+            
             GUILayout.BeginHorizontal();
-            EditorGUI.EndDisabledGroup();
             GUILayout.Label("xLength", GUILayout.Width(EditorGUIUtility.labelWidth));
             gridMap.gridData.xLength = EditorGUILayout.IntSlider(gridMap.gridData.xLength, 10, 100);
             GUILayout.EndHorizontal();
