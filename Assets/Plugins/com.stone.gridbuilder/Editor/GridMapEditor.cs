@@ -21,20 +21,8 @@ namespace ST.GridBuilder
                 EditorGUILayout.HelpBox("GridMap or GridData is not set.", MessageType.Error);
                 return;
             }
-            
-            Vector3 position = gridMap.transform.position;
-            gridMap.gridData.xPosition = (int)position.x;
-            gridMap.gridData.zPosition = (int)position.z;
-            
+
             EditorGUI.BeginDisabledGroup(true);
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("xPosition", GUILayout.Width(EditorGUIUtility.labelWidth));
-            EditorGUILayout.IntField(gridMap.gridData.xPosition);
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("zPosition", GUILayout.Width(EditorGUIUtility.labelWidth));
-            EditorGUILayout.IntField(gridMap.gridData.zPosition);
-            GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             EditorGUI.EndDisabledGroup();
             GUILayout.Label("xLength", GUILayout.Width(EditorGUIUtility.labelWidth));
@@ -98,23 +86,21 @@ namespace ST.GridBuilder
             {
                 for (int z = 0; z < gridData.zLength; z++)
                 {
-                    Vector3 pos = gridMap.GetCellPosition(x, z);
-                    pos.y = gridMap.raycastHeight;
-
+                    Vector3 pos = new Vector3((x + 0.5f) * gridData.cellSize, 0, (z + 0.5f) * gridData.cellSize);
                     float offset = gridData.cellSize / 2.0f * gridMap.raycastFineness;
-                    if (Physics.Raycast(pos + new Vector3(-offset, 0, -offset), Vector3.down, out RaycastHit _, gridMap.raycastHeight, gridMap.obstacleMask))
+                    if (gridMap.Raycast(pos + new Vector3(-offset, 0, -offset), gridMap.obstacleMask))
                     {
                         gridData.SetObstacle(x, z, true);
                     }
-                    else if (Physics.Raycast(pos + new Vector3(offset, 0, -offset), Vector3.down, out RaycastHit _, gridMap.raycastHeight, gridMap.obstacleMask))
+                    else if (gridMap.Raycast(pos + new Vector3(offset, 0, -offset), gridMap.obstacleMask))
                     {
                         gridData.SetObstacle(x, z, true);
                     }
-                    else if (Physics.Raycast(pos + new Vector3(-offset, 0, offset), Vector3.down, out RaycastHit _, gridMap.raycastHeight, gridMap.obstacleMask))
+                    else if (gridMap.Raycast(pos + new Vector3(-offset, 0, offset), gridMap.obstacleMask))
                     {
                         gridData.SetObstacle(x, z, true);
                     }
-                    else if (Physics.Raycast(pos + new Vector3(offset, 0, offset), Vector3.down, out RaycastHit _, gridMap.raycastHeight, gridMap.obstacleMask))
+                    else if (gridMap.Raycast(pos + new Vector3(offset, 0, offset), gridMap.obstacleMask))
                     {
                         gridData.SetObstacle(x, z, true);
                     }

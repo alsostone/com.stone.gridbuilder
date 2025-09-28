@@ -102,7 +102,7 @@ namespace ST.GridBuilder
                 {
                     IndexV2 index = gridMap.ConvertToIndex(pos + dragOffset);
                     int targetLevel = gridMap.gridData.GetShapeLevelCount(index.x, index.z, dragPlacement.placementData);
-                    dragPlacement.SetMovePosition(gridMap.GetLevelPosition(index.x, index.z, targetLevel));
+                    dragPlacement.SetMovePosition(gridMap.GetLevelPosition(index.x, index.z, targetLevel, dragPlacement.takeHeight));
                     if (gridMapIndicator) {
                         gridMapIndicator.GenerateIndicator(index.x, index.z, targetLevel, dragPlacement.placementData);
                     }
