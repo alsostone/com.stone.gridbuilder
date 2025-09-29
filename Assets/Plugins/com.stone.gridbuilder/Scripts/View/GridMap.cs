@@ -14,24 +14,28 @@ namespace ST.GridBuilder
 
         [SerializeField, HideInInspector] public GridData gridData = new();
 
+        public Quaternion GetGridRotation()
+        {
+            return transform.rotation;
+        }
+
         public IndexV2 ConvertToIndex(Vector3 position)
         {
-            position = transform.InverseTransformDirection(position);
-            FieldV2 pos = position.ToFieldV2();
-            return gridData.ConvertToIndex(ref pos);
+            position = transform.InverseTransformDirection(position - transform.position);
+            return gridData.ConvertToIndex(position.ToFieldV2());
         }
 
         public void SetDestination(Vector3 position)
         {
-            position = transform.InverseTransformDirection(position);
+            position = transform.InverseTransformDirection(position - transform.position);
             gridData.SetDestination(position.ToFieldV2());
         }
 
         public Vector3 GetFieldVector(Vector3 position)
         {
-            position = transform.InverseTransformDirection(position);
+            position = transform.InverseTransformDirection(position - transform.position);
             FieldV2 v2 = gridData.GetFieldVector(position.ToFieldV2());
-            return new Vector3(v2.x, 0, v2.z);
+            return transform.TransformDirection(v2.ToVector3());
         }
         
         public Vector3 RaycastPosition(Vector3 pos)

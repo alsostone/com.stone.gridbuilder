@@ -68,7 +68,7 @@ namespace ST.GridBuilder
             }
         }
         
-        public IndexV2 ConvertToIndex(ref FieldV2 position)
+        public IndexV2 ConvertToIndex(FieldV2 position)
         {
             return new IndexV2((int)(position.x / cellSize), (int)(position.z / cellSize));
         }

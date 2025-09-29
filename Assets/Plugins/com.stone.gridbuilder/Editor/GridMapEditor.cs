@@ -118,7 +118,7 @@ namespace ST.GridBuilder
 
                 placement.placementData.id = gridMap.gridData.GetNextGuid();
                 gridMap.gridData.Put(index.x, index.z, placement.placementData);
-                placement.SetPutPosition(gridMap.GetPutPosition(placement.placementData));
+                placement.SetPosition(gridMap.GetPutPosition(placement.placementData));
                 EditorUtility.SetDirty(placement);
             }
         }
