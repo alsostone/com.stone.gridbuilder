@@ -68,8 +68,8 @@ namespace ST.GridBuilder
 
         public void Rotation(int r, Quaternion parent)
         {
-            placementData.Rotation(r);
-            transform.rotation = Quaternion.Euler(0, placementData.rotation * 90, 0);
+            if (r != 0) placementData.Rotation(r);
+            transform.rotation = parent * Quaternion.Euler(0, placementData.rotation * 90, 0);
         }
 
         public void ResetRotation(Quaternion parent)

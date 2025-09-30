@@ -8,14 +8,10 @@ namespace ST.GridBuilder
     {
         public GridMap gridMap;
         
-        private void Awake()
-        {
-            if (gridMap == null)
-                gridMap = FindObjectOfType<GridMap>();
-        }
-
         public void GenerateLines()
         {
+            if (!gridMap) return;
+
             GridData gridData = gridMap.gridData;
             List<Vector3> positions = new();
             

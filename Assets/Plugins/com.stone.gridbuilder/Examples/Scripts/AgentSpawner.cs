@@ -20,16 +20,17 @@ namespace ST.GridBuilder
             {
                 for (int i = 0; i < 10; i++)
                 {
-                    Vector3 position = new Vector3(Random.Range(0, 50), 0, Random.Range(0, 40));
+                    Vector3 position = new Vector3(Random.Range(-25, 25), 0, Random.Range(-25, 25));
                     Instantiate(agentPrefab, position, Quaternion.identity);
                 }
             }
 
             if (Input.GetKeyDown(KeyCode.D))
             {
-                if (gridBuilder.RaycastTerrain(Input.mousePosition, out var pos))
+                GridMap gridMap = gridBuilder.RaycastGridMap(Input.mousePosition);
+                if (gridMap && gridBuilder.RaycastTerrain(Input.mousePosition, out var pos))
                 {
-                    gridBuilder.gridMap.SetDestination(pos);
+                    gridMap.SetDestination(pos);
                 }
             }
         }

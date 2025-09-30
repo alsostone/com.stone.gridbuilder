@@ -6,10 +6,13 @@ namespace ST.GridBuilder
     public class GridBuilder : MonoBehaviour
     {
         [SerializeField] public Camera rayCamera;
-        [SerializeField] public GridMap gridMap;
+        [SerializeField] public LayerMask gridMapMask;
+        [SerializeField] public LayerMask terrainMask;
         [SerializeField] public GridMapIndicator gridMapIndicator;
         [SerializeField] public float raycastDistance = 1000.0f;
         
+        private GridMap currentGridMap;
+        private GridMap dragPlacementGridMap;
         private Placement dragPlacement;
         private Vector3 dragOffset;
         private int dragFingerId = -1;
@@ -18,12 +21,13 @@ namespace ST.GridBuilder
         {
             if (rayCamera == null)
                 rayCamera = Camera.main;
-            if (gridMap == null)
-                gridMap = FindObjectOfType<GridMap>();
-            if (gridMapIndicator == null)
-            {
+            
+            currentGridMap = FindObjectOfType<GridMap>();
+            if (gridMapIndicator == null) {
                 gridMapIndicator = FindObjectOfType<GridMapIndicator>();
-                if (gridMapIndicator) gridMapIndicator.SetGridMap(gridMap);
+            }
+            if (gridMapIndicator) {
+                gridMapIndicator.SetGridMap(currentGridMap);
             }
         }
 
@@ -70,7 +74,7 @@ namespace ST.GridBuilder
         
         private bool OnTouchBegin(Vector3 touchPosition)
         {
-            if (!dragPlacement)
+            if (!dragPlacement && RaycastGridMap(touchPosition))
             {
                 if (RaycastTarget(touchPosition, out GameObject target))
                 {
@@ -80,8 +84,9 @@ namespace ST.GridBuilder
                     }
 
                     Vector3 position = placement.GetPosition();
-                    if (gridMap.gridData.CanTake(placement.placementData))
+                    if (currentGridMap.gridData.CanTake(placement.placementData))
                     {
+                        dragPlacementGridMap = currentGridMap;
                         dragPlacement = placement;
                         dragPlacement.SetPreviewMaterial();
                         RaycastTerrain(touchPosition, out Vector3 pos);
@@ -96,13 +101,14 @@ namespace ST.GridBuilder
 
         private void OnTouchMove(Vector3 touchPosition)
         {
-            if (dragPlacement)
+            if (dragPlacement && RaycastGridMap(touchPosition))
             {
                 if (RaycastTerrain(touchPosition, out Vector3 pos))
                 {
-                    IndexV2 index = gridMap.ConvertToIndex(pos + dragOffset);
-                    int targetLevel = gridMap.gridData.GetShapeLevelCount(index.x, index.z, dragPlacement.placementData);
-                    dragPlacement.SetPosition(gridMap.GetLevelPosition(index.x, index.z, targetLevel, dragPlacement.takeHeight));
+                    IndexV2 index = currentGridMap.ConvertToIndex(pos + dragOffset);
+                    int targetLevel = currentGridMap.gridData.GetShapeLevelCount(index.x, index.z, dragPlacement.placementData);
+                    dragPlacement.SetPosition(currentGridMap.GetLevelPosition(index.x, index.z, targetLevel, dragPlacement.takeHeight));
+                    dragPlacement.Rotation(0, currentGridMap.GetGridRotation());
                     if (gridMapIndicator) {
                         gridMapIndicator.GenerateIndicator(index.x, index.z, targetLevel, dragPlacement.placementData);
                     }
@@ -112,42 +118,45 @@ namespace ST.GridBuilder
 
         private void OnTouchEnd(Vector3 touchPosition)
         {
-            if (dragPlacement)
+            if (dragPlacement && RaycastGridMap(touchPosition))
             {
                 dragPlacement.ResetPreviewMaterial();
                 if (RaycastTerrain(touchPosition, out Vector3 pos))
                 {
-                    IndexV2 index = gridMap.ConvertToIndex(pos + dragOffset);
-                    if (gridMap.gridData.CanPut(index.x, index.z, dragPlacement.placementData))
+                    IndexV2 index = currentGridMap.ConvertToIndex(pos + dragOffset);
+                    if (currentGridMap.gridData.CanPut(index.x, index.z, dragPlacement.placementData))
                     {
                         if (dragPlacement.placementData.isNew)
                         {
-                            dragPlacement.placementData.id = gridMap.gridData.GetNextGuid();
-                            gridMap.gridData.Put(index.x, index.z, dragPlacement.placementData);
-                            gridMap.gridData.ResetFlowField();
+                            dragPlacement.placementData.id = currentGridMap.gridData.GetNextGuid();
+                            currentGridMap.gridData.Put(index.x, index.z, dragPlacement.placementData);
+                            currentGridMap.gridData.ResetFlowField();
                         }
                         else if (index.x != dragPlacement.placementData.x || index.z != dragPlacement.placementData.z)
                         {
-                            gridMap.gridData.Take(dragPlacement.placementData);
-                            gridMap.gridData.Put(index.x, index.z, dragPlacement.placementData);
-                            gridMap.gridData.ResetFlowField();
+                            dragPlacementGridMap.gridData.Take(dragPlacement.placementData);
+                            if (dragPlacementGridMap != currentGridMap)
+                                dragPlacementGridMap.gridData.ResetFlowField();
+                            currentGridMap.gridData.Put(index.x, index.z, dragPlacement.placementData);
+                            currentGridMap.gridData.ResetFlowField();
                         }
-                        dragPlacement.SetPosition(gridMap.GetPutPosition(dragPlacement.placementData));
+                        dragPlacement.SetPosition(currentGridMap.GetPutPosition(dragPlacement.placementData));
                     }
                     else {
                         if (dragPlacement.placementData.isNew) {
                             dragPlacement.Remove();
                         } else {
-                            dragPlacement.SetPosition(gridMap.GetPutPosition(dragPlacement.placementData));
+                            dragPlacement.SetPosition(currentGridMap.GetPutPosition(dragPlacement.placementData));
                         }
                     }
                 } else {
                     if (dragPlacement.placementData.isNew) {
                         dragPlacement.Remove();
                     } else {
-                        dragPlacement.SetPosition(gridMap.GetPutPosition(dragPlacement.placementData));
+                        dragPlacement.SetPosition(currentGridMap.GetPutPosition(dragPlacement.placementData));
                     }
                 }
+                dragPlacementGridMap = null;
                 dragPlacement = null;
                 dragOffset = Vector3.zero;
                 if (gridMapIndicator) {
@@ -163,12 +172,13 @@ namespace ST.GridBuilder
                 if (dragPlacement.placementData.isNew) {
                     dragPlacement.Remove();
                 } else {
-                    dragPlacement.SetPosition(gridMap.GetPutPosition(dragPlacement.placementData));
+                    dragPlacement.SetPosition(currentGridMap.GetPutPosition(dragPlacement.placementData));
                 }
             }
             if (placement) {
+                dragPlacementGridMap = currentGridMap;
                 dragPlacement = placement;
-                dragPlacement.ResetRotation(gridMap.GetGridRotation());
+                dragPlacement.ResetRotation(currentGridMap.GetGridRotation());
                 dragPlacement.SetPreviewMaterial();
                 dragOffset = Vector3.zero;
             }
@@ -180,7 +190,7 @@ namespace ST.GridBuilder
             {
                 if (dragPlacement.placementData.isNew)
                 {
-                    dragPlacement.Rotation(1, gridMap.GetGridRotation());
+                    dragPlacement.Rotation(1, currentGridMap.GetGridRotation());
                 }
                 else
                 {
@@ -197,13 +207,29 @@ namespace ST.GridBuilder
                 if (dragPlacement.placementData.isNew) {
                     dragPlacement.Remove();
                 } else {
-                    dragPlacement.SetPosition(gridMap.GetPutPosition(dragPlacement.placementData));
+                    dragPlacement.SetPosition(currentGridMap.GetPutPosition(dragPlacement.placementData));
                 }
+                dragPlacementGridMap = null;
                 dragPlacement = null;
                 dragOffset = Vector3.zero;
             }
         }
-
+        
+        public GridMap RaycastGridMap(Vector3 position)
+        {
+            if (rayCamera == null)
+                return null;
+            
+            Ray ray = rayCamera.ScreenPointToRay(position);
+            if (Physics.Raycast(ray, out RaycastHit hit, raycastDistance, gridMapMask)) {
+                currentGridMap = hit.transform.GetComponent<GridMap>();
+                if (gridMapIndicator) {
+                    gridMapIndicator.SetGridMap(currentGridMap);
+                }
+            }
+            return currentGridMap;
+        }
+        
         public bool RaycastTerrain(Vector3 position, out Vector3 pos)
         {
             pos = default;
@@ -213,7 +239,7 @@ namespace ST.GridBuilder
             }
 
             Ray ray = rayCamera.ScreenPointToRay(position);
-            if (Physics.Raycast(ray, out RaycastHit hit, raycastDistance, gridMap.terrainMask)) {
+            if (Physics.Raycast(ray, out RaycastHit hit, raycastDistance, terrainMask)) {
                 pos = hit.point;
                 return true;
             }

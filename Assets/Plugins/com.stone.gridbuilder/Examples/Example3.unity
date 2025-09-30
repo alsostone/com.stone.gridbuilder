@@ -26138,8 +26138,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rayCamera: {fileID: 1899506829}
-  gridMap: {fileID: 1016826417}
-  gridMapIndicator: {fileID: 0}
+  gridMapMask:
+    serializedVersion: 2
+    m_Bits: 4096
+  terrainMask:
+    serializedVersion: 2
+    m_Bits: 8192
+  gridMapIndicator: {fileID: 1738961480419717929}
   raycastDistance: 1000
 --- !u!4 &1553460569
 Transform:
@@ -26936,3 +26941,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 251bbf739a674441a808b2f76255e299, type: 3}
+--- !u!114 &1738961480419717929 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5096304932029855229, guid: 251bbf739a674441a808b2f76255e299,
+    type: 3}
+  m_PrefabInstance: {fileID: 1738961480419717928}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4fe2759475e4d81829e66628d545c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

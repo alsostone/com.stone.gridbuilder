@@ -12,14 +12,10 @@ namespace ST.GridBuilder
         private Color[] colors;
         private int[] indices;
         
-        private void Awake()
-        {
-            if (gridMap == null)
-                gridMap = FindObjectOfType<GridMap>();
-        }
-        
         public void GenerateTiles()
         {
+            if (!gridMap) return;
+
             GridData gridData = gridMap.gridData;
             
             int len = gridData.xLength * gridData.zLength;
