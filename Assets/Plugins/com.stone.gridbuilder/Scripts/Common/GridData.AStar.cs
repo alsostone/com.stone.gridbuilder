@@ -9,7 +9,17 @@ namespace ST.GridBuilder
         [MemoryPackIgnore] private PriorityQueue<CellData, int> frontier = new ();
         [MemoryPackIgnore] private HashSet<CellData> visited = new ();
         
-        public bool FindPath(CellData start, CellData end, List<CellData> results)
+        public bool FindPath(CellData start, FieldV2 to, List<CellData> results)
+        {
+            IndexV2 dest = GetValidDest(ConvertToIndex(to));
+            CellData end = GetCell(dest.x, dest.z);
+            if (end == null || end.IsFill) {
+                return false;
+            }
+            return FindPath(start, end, results);
+        }
+
+        public bool FindPath(CellData start, CellData dest, List<CellData> results)
         {
             ClearAStarData();
             
@@ -22,7 +32,7 @@ namespace ST.GridBuilder
             while (frontier.Count > 0)
             {
                 var current = frontier.Dequeue();
-                if (current == end) {
+                if (current == dest) {
                     break;
                 }
                 
@@ -35,7 +45,7 @@ namespace ST.GridBuilder
                             neighbour.prev = current;
                         }
                         if (!visited.Contains(neighbour)) {
-                            frontier.Enqueue(neighbour, cost + Heuristic(neighbour, end));
+                            frontier.Enqueue(neighbour, cost + Heuristic(neighbour, dest));
                             visited.Add(neighbour);
                         }
                     }
@@ -48,7 +58,7 @@ namespace ST.GridBuilder
                             neighbour.prev = current;
                         }
                         if (!visited.Contains(neighbour)) {
-                            frontier.Enqueue(neighbour, cost + Heuristic(neighbour, end));
+                            frontier.Enqueue(neighbour, cost + Heuristic(neighbour, dest));
                             visited.Add(neighbour);
                         }
                     }
@@ -61,7 +71,7 @@ namespace ST.GridBuilder
                             neighbour.prev = current;
                         }
                         if (!visited.Contains(neighbour)) {
-                            frontier.Enqueue(neighbour, cost + Heuristic(neighbour, end));
+                            frontier.Enqueue(neighbour, cost + Heuristic(neighbour, dest));
                             visited.Add(neighbour);
                         }
                     }
@@ -74,16 +84,16 @@ namespace ST.GridBuilder
                             neighbour.prev = current;
                         }
                         if (!visited.Contains(neighbour)) {
-                            frontier.Enqueue(neighbour, cost + Heuristic(neighbour, end));
+                            frontier.Enqueue(neighbour, cost + Heuristic(neighbour, dest));
                             visited.Add(neighbour);
                         }
                     }
                 }
             }
 
-            return BacktrackToPath(end, results);
+            return BacktrackToPath(dest, results);
         }
-        
+
         private void ClearAStarData()
         {
             foreach (var cell in cells) {
@@ -94,11 +104,11 @@ namespace ST.GridBuilder
             visited.Clear();
         }
         
-        private bool BacktrackToPath(CellData end, List<CellData> results)
+        private bool BacktrackToPath(CellData dest, List<CellData> results)
         {
             results.Clear();
             
-            CellData current = end;
+            CellData current = dest;
             while (current != null)
             {
                 results.Add(current);

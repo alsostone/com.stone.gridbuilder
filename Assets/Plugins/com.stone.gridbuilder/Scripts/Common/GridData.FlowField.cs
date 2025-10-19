@@ -11,18 +11,18 @@ namespace ST.GridBuilder
 
         public void SetDestination(FieldV2 position)
         {
-            IndexV2 indexCurrent = ConvertToIndex(position);
-            destination = GetValidDestination(indexCurrent);
+            destination = ConvertToIndex(position);
             ResetFlowField();
         }
         
         public void ResetFlowField()
         {
-            if (destination.x < 0 || destination.x >= xLength || destination.z < 0 || destination.z >= zLength) {
+            destination = GetValidDest(destination);
+            CellData dest = GetCell(destination.x, destination.z);
+            if (dest == null || dest.IsFill) {
                 return;
             }
-            ClearDijkstraData();
-            GenerateDijkstraData(destination);
+            GenerateDijkstraData(dest);
             GenerateFlowField();
         }
         
@@ -108,15 +108,12 @@ namespace ST.GridBuilder
             visit.Clear();
         }
         
-        private void GenerateDijkstraData(IndexV2 dest)
+        private void GenerateDijkstraData(CellData dest)
         {
-            CellData cellData = GetCell(dest.x, dest.z);
-            if (cellData == null || cellData.IsFill) {
-                return;
-            }
+            ClearDijkstraData();
 
-            cellData.distance = 0;
-            visit.Enqueue(cellData);
+            visit.Enqueue(dest);
+            dest.distance = 0;
             
             while (visit.Count > 0)
             {
@@ -193,33 +190,5 @@ namespace ST.GridBuilder
             }
         }
         
-        private IndexV2 GetValidDestination(IndexV2 dest)
-        {
-            CellData cellData = GetCell(dest.x, dest.z);
-            if (cellData == null || cellData.IsFill)
-            {
-                // Find the nearest valid cell
-                int minDistance = int.MaxValue;
-                IndexV2 nearest = new IndexV2(-1, -1);
-                for (int x = 0; x < xLength; x++)
-                {
-                    for (int z = 0; z < zLength; z++)
-                    {
-                        CellData cell = GetCell(x, z);
-                        if (cell != null && !cell.IsFill)
-                        {
-                            int distance = Math.Abs(x - dest.x) + Math.Abs(z - dest.z);
-                            if (distance < minDistance)
-                            {
-                                minDistance = distance;
-                                nearest = new IndexV2(x, z);
-                            }
-                        }
-                    }
-                }
-                return nearest;
-            }
-            return dest;
-        }
     }
 }

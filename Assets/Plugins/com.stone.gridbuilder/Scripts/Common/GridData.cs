@@ -28,6 +28,14 @@ namespace ST.GridBuilder
         {
             return HashCode.Combine(x, z);
         }
+        public static bool operator ==(IndexV2 left, IndexV2 right)
+        {
+            return left.Equals(right);
+        }
+        public static bool operator !=(IndexV2 left, IndexV2 right)
+        {
+            return !left.Equals(right);
+        }
     }
     
     [MemoryPackable]
@@ -260,5 +268,38 @@ namespace ST.GridBuilder
                 cells[x + z * xLength].isObstacle = isObstacle;
             }
         }
+        
+        private IndexV2 GetValidDest(IndexV2 dest)
+        {
+            dest.x = Math.Clamp(dest.x, 0, xLength - 1);
+            dest.z = Math.Clamp(dest.z, 0, zLength - 1);
+            
+            CellData cellData = GetCell(dest.x, dest.z);
+            if (!cellData.IsFill)
+                return dest;
+            
+            int round = 1;
+            while (round < xLength || round < zLength)
+            {
+                for (int dx = -round; dx <= round; dx += round * 2)
+                for (int dz = -round; dz <= round; dz += round * 2)
+                {
+                    int nx = dest.x + dx;
+                    int nz = dest.z + dz;
+                    if (!IsInside(nx, nz))
+                        continue;
+                    
+                    CellData cell = GetCell(nx, nz);
+                    if (!cell.IsFill) {
+                        return new IndexV2(nx, nz);
+                    }
+                }
+                round++;
+            }
+            
+            return new IndexV2(-1, -1);
+        }
+        
+        
     }
 }
