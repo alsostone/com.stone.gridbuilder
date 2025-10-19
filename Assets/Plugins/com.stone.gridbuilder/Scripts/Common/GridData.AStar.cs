@@ -9,17 +9,25 @@ namespace ST.GridBuilder
         [MemoryPackIgnore] private PriorityQueue<CellData, int> frontier = new ();
         [MemoryPackIgnore] private HashSet<CellData> visited = new ();
         
-        public bool FindPath(CellData start, FieldV2 to, List<CellData> results)
+        public bool Pathfinding(FieldV2 start, FieldV2 to, List<IndexV2> results)
         {
-            IndexV2 dest = GetValidDest(ConvertToIndex(to));
-            CellData end = GetCell(dest.x, dest.z);
-            if (end == null || end.IsFill) {
+            results.Clear();
+
+            IndexV2 startIndex = ConvertToIndex(start);
+            CellData startCell = GetCell(startIndex.x, startIndex.z);
+            if (startCell == null || startCell.IsFill) {
                 return false;
             }
-            return FindPath(start, end, results);
+            
+            IndexV2 toIndexV2 = GetValidDest(ConvertToIndex(to));
+            CellData toCell = GetCell(toIndexV2.x, toIndexV2.z);
+            if (toCell == null || toCell.IsFill) {
+                return false;
+            }
+            return Pathfinding(startCell, toCell, results);
         }
 
-        public bool FindPath(CellData start, CellData dest, List<CellData> results)
+        public bool Pathfinding(CellData start, CellData dest, List<IndexV2> results)
         {
             ClearAStarData();
             
@@ -104,14 +112,12 @@ namespace ST.GridBuilder
             visited.Clear();
         }
         
-        private bool BacktrackToPath(CellData dest, List<CellData> results)
+        private bool BacktrackToPath(CellData dest, List<IndexV2> results)
         {
-            results.Clear();
-            
             CellData current = dest;
             while (current != null)
             {
-                results.Add(current);
+                results.Add(current.index);
                 current = current.prev;
             }
 
