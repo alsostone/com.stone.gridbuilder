@@ -1,11 +1,11 @@
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace ST.GridBuilder
 {
     public class Agent : MonoBehaviour
     {
         private GridMap gridMap;
+        private const float Speed = 2f;
 
         private void Start()
         {
@@ -16,8 +16,11 @@ namespace ST.GridBuilder
         void Update()
         {
             var position = transform.position;
-            position += gridMap.GetFieldVector(position) * Time.deltaTime * 2;
-            transform.position = position;
+            var vector = gridMap.GetFieldVector(position);
+            if (vector.sqrMagnitude > 0.01f)
+            {
+                transform.position += vector.normalized * (Speed * Time.deltaTime);
+            }
         }
     }
 }

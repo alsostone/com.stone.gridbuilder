@@ -100,7 +100,7 @@ namespace ST.GridBuilder
                     v2 = bottom.direction;
             }
             
-            return v1.Lerp(v2, (position.z - (indexCurrent.z * cellSize + half)) / cellSize).Normalize();
+            return v1.Lerp(v2, (position.z - (indexCurrent.z * cellSize + half)) / cellSize);
         }
 
         public int GenerateFlowField(FieldV2 destination)
