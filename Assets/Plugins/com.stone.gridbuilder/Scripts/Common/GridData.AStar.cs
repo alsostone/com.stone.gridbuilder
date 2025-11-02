@@ -40,7 +40,7 @@ namespace ST.GridBuilder
             frontier.Enqueue(start, 0);
             visited.Add(start);
 
-            start.distance = 0;
+            start.cost = 0;
             start.prev = null;
 
             while (frontier.Count > 0)
@@ -62,9 +62,9 @@ namespace ST.GridBuilder
                         continue;
                     }
 
-                    int cost = current.distance + ((dx == 0 || dz == 0) ? 10000 : 14142); // Orthogonal or diagonal cost
-                    if (neighbour.distance > cost) {
-                        neighbour.distance = cost;
+                    int cost = current.cost + ((dx == 0 || dz == 0) ? 10000 : 14142); // Orthogonal or diagonal cost
+                    if (neighbour.cost > cost) {
+                        neighbour.cost = cost;
                         neighbour.prev = current;
                         frontier.Enqueue(neighbour, cost + Heuristic(neighbour, dest) * 10000);
                         visited.Add(neighbour);
@@ -78,7 +78,7 @@ namespace ST.GridBuilder
         private void ClearAStarData()
         {
             foreach (var cell in cells) {
-                cell.distance = int.MaxValue;
+                cell.cost = int.MaxValue;
                 cell.prev = null;
             }
             frontier.Clear();

@@ -14,6 +14,25 @@ namespace ST.GridBuilder
 
         [SerializeField, HideInInspector] public GridData gridData = new();
         [NonSerialized] private readonly List<IndexV2> pathPoints = new();
+        
+        [NonSerialized] private bool flowFieldDirty;
+        [NonSerialized] private int flowFieldIndex;
+        [NonSerialized] private FieldV2 flowFieldDestination;
+
+        private void Awake()
+        {
+            SetDestination(Vector3.zero);
+        }
+
+        private void Update()
+        {
+            if (flowFieldDirty)
+            {
+                flowFieldDirty = false;
+                gridData.ReleaseFlowField(flowFieldIndex);
+                flowFieldIndex = gridData.GenerateFlowField(flowFieldDestination);
+            }
+        }
 
         public Quaternion GetGridRotation()
         {
@@ -29,13 +48,14 @@ namespace ST.GridBuilder
         public void SetDestination(Vector3 position)
         {
             position = transform.InverseTransformDirection(position - transform.position);
-            gridData.SetDestination(position.ToFieldV2());
+            flowFieldDestination = position.ToFieldV2();
+            flowFieldDirty = true;
         }
 
         public Vector3 GetFieldVector(Vector3 position)
         {
             position = transform.InverseTransformDirection(position - transform.position);
-            FieldV2 v2 = gridData.GetFieldVector(position.ToFieldV2());
+            FieldV2 v2 = gridData.GetFieldVector(flowFieldIndex, position.ToFieldV2());
             return transform.TransformDirection(v2.ToVector3());
         }
         
@@ -131,6 +151,18 @@ namespace ST.GridBuilder
             return pos;
         }
         
+        public void Put(int x, int z, PlacementData placementData)
+        {
+            gridData.Put(x, z, placementData);
+            flowFieldDirty = true;
+        }
+        
+        public void Take(PlacementData placementData)
+        {
+            gridData.Take(placementData);
+            flowFieldDirty = true;
+        }
+        
     #if UNITY_EDITOR
         private readonly List<Vector3> drawPoints = new List<Vector3>();
         void OnDrawGizmos()
@@ -213,12 +245,16 @@ namespace ST.GridBuilder
 
         private void OnDrawArrow()
         {
+            FlowFieldNode[] flowField = gridData.GetFlowField(flowFieldIndex);
+            if (flowField == null)
+                return;
+            
             int xLength = gridData.xLength;
             int zLength = gridData.zLength;
             for (int x = 0; x < xLength; ++x)
             for (int z = 0; z < zLength; z++)
             {
-                CellData data = gridData.cells[x + z * xLength];
+                FlowFieldNode data = flowField[x + z * xLength];
                 if (data.distance == 0 || data.distance == int.MaxValue)
                     continue;
 

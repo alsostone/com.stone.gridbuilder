@@ -41,9 +41,8 @@ namespace ST.GridBuilder
         [MemoryPackInclude] public List<PlacedLayer> contentTypes;
         [MemoryPackInclude] public bool isObstacle;
         [MemoryPackInclude] public IndexV2 index = new IndexV2(-1, -1);
-        [MemoryPackInclude] public FieldV2 direction = new FieldV2(0, 0);       // flowField
-        
-        [MemoryPackIgnore] public int distance = int.MaxValue;      // flowField and A*
+
+        [MemoryPackIgnore] public int cost = int.MaxValue;      // A*
         [MemoryPackIgnore] public CellData prev = null;             // A*
 
         public CellData()

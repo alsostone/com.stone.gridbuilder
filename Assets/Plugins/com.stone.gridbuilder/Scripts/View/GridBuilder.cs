@@ -129,16 +129,12 @@ namespace ST.GridBuilder
                         if (dragPlacement.placementData.isNew)
                         {
                             dragPlacement.placementData.id = currentGridMap.gridData.GetNextGuid();
-                            currentGridMap.gridData.Put(index.x, index.z, dragPlacement.placementData);
-                            currentGridMap.gridData.ResetFlowField();
+                            currentGridMap.Put(index.x, index.z, dragPlacement.placementData);
                         }
                         else if (index.x != dragPlacement.placementData.x || index.z != dragPlacement.placementData.z)
                         {
-                            dragPlacementGridMap.gridData.Take(dragPlacement.placementData);
-                            if (dragPlacementGridMap != currentGridMap)
-                                dragPlacementGridMap.gridData.ResetFlowField();
-                            currentGridMap.gridData.Put(index.x, index.z, dragPlacement.placementData);
-                            currentGridMap.gridData.ResetFlowField();
+                            dragPlacementGridMap.Take(dragPlacement.placementData);
+                            currentGridMap.Put(index.x, index.z, dragPlacement.placementData);
                         }
                         dragPlacement.SetPosition(currentGridMap.GetPutPosition(dragPlacement.placementData));
                     }
