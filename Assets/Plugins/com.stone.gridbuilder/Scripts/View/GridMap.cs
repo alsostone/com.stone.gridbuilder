@@ -15,14 +15,13 @@ namespace ST.GridBuilder
         [SerializeField, HideInInspector] public GridData gridData = new();
         [NonSerialized] private readonly List<IndexV2> pathPoints = new();
         
+        [NonSerialized] private FlowFieldNode[] flowField;
         [NonSerialized] private bool flowFieldDirty;
-        [NonSerialized] private int flowFieldDefaultIndex = -1;
         [NonSerialized] private FieldV2 flowFieldDestination;
-        [NonSerialized] private Dictionary<int, int> flowFieldIndexRef;
 
         private void Awake()
         {
-            flowFieldIndexRef = new Dictionary<int, int>();
+            flowField = new FlowFieldNode[gridData.xLength * gridData.zLength];
             SetDestination(Vector3.zero);
         }
 
@@ -31,8 +30,8 @@ namespace ST.GridBuilder
             if (flowFieldDirty)
             {
                 flowFieldDirty = false;
-                gridData.ReleaseFlowField(flowFieldDefaultIndex);
-                flowFieldDefaultIndex = gridData.GenerateFlowField(flowFieldDestination);
+                gridData.ResetDijkstraData(flowField, flowFieldDestination);
+                gridData.GenerateDijkstraData(flowField);
             }
         }
 
@@ -54,7 +53,7 @@ namespace ST.GridBuilder
             flowFieldDirty = true;
         }
         
-        public int GenerateFlowField(List<Vector3> position)
+        public void GenerateFlowField(List<Vector3> position)
         {
             List<FieldV2> destinations = new List<FieldV2>();
             foreach (var pos in position)
@@ -62,31 +61,14 @@ namespace ST.GridBuilder
                 Vector3 localPos = transform.InverseTransformDirection(pos - transform.position);
                 destinations.Add(localPos.ToFieldV2());
             }
-            int index = gridData.GenerateFlowField(destinations);
-            flowFieldIndexRef.Add(index, position.Count);
-            return index;
+            gridData.ResetDijkstraData(flowField, destinations);
+            gridData.GenerateDijkstraData(flowField);
         }
         
-        public void RemoveFlowFieldReference(int flowFieldIndex)
-        {
-            if (flowFieldIndexRef.TryGetValue(flowFieldIndex, out var referenceCount))
-            {
-                if (referenceCount == 1)
-                {
-                    gridData.ReleaseFlowField(flowFieldIndex);
-                    flowFieldIndexRef.Remove(flowFieldIndex);
-                }
-                else
-                {
-                    flowFieldIndexRef[flowFieldIndex] = referenceCount - 1;
-                }
-            }
-        }
-
         public Vector3 GetFieldVector(Vector3 position)
         {
             position = transform.InverseTransformDirection(position - transform.position);
-            FieldV2 v2 = gridData.GetFieldVector(flowFieldDefaultIndex, position.ToFieldV2());
+            FieldV2 v2 = gridData.GetFieldVector(flowField, position.ToFieldV2());
             return transform.TransformDirection(v2.ToVector3());
         }
         
@@ -276,7 +258,6 @@ namespace ST.GridBuilder
 
         private void OnDrawArrow()
         {
-            FlowFieldNode[] flowField = gridData.GetFlowField(flowFieldDefaultIndex);
             if (flowField == null)
                 return;
             

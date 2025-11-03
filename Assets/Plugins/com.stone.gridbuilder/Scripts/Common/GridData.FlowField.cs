@@ -12,35 +12,15 @@ namespace ST.GridBuilder
 
     public partial class GridData
     {
-        [MemoryPackInclude] private List<FlowFieldNode[]> flowFields = new List<FlowFieldNode[]>();
-        [MemoryPackInclude] private Stack<int> freeFlowField = new Stack<int>();
         [MemoryPackIgnore] private Queue<CellData> flowFieldVisit = new Queue<CellData>();
-
-        public FlowFieldNode[] GetFlowField(int index)
-        {
-            if (index < 0 || index >= flowFields.Count)
-                return null;
-            return flowFields[index];
-        }
-
-        public void ReleaseFlowField(int index)
-        {
-            if (index < 0 || index >= flowFields.Count)
-                return;
-            freeFlowField.Push(index);
-        }
         
-        public FieldV2 GetFieldVector(int flowFieldIndex, FieldV2 position)
+        public FieldV2 GetFieldVector(FlowFieldNode[] flowField, FieldV2 position)
         {
             IndexV2 indexCurrent = ConvertToIndex(position);
             if (indexCurrent.x < 0 || indexCurrent.x >= xLength || indexCurrent.z < 0 || indexCurrent.z >= zLength) {
                 return new FieldV2(0, 0);
             }
-            if (flowFieldIndex < 0 || flowFieldIndex >= flowFields.Count) {
-                return new FieldV2(0, 0);
-            }
             
-            FlowFieldNode[] flowField = flowFields[flowFieldIndex];
             FieldV2 v1 = new FieldV2(0, 0);
             FieldV2 v2 = new FieldV2(0, 0);
             float half = cellSize / 2;
@@ -109,39 +89,7 @@ namespace ST.GridBuilder
             return v1.Lerp(v2, (position.z - (indexCurrent.z * cellSize + half)) / cellSize);
         }
 
-        public int GenerateFlowField(FieldV2 destination)
-        {
-            FlowFieldNode[] flowField;
-            if (freeFlowField.TryPop(out int index)) {
-                flowField = flowFields[index];
-            } else {
-                flowField = new FlowFieldNode[xLength * zLength];
-                flowFields.Add(flowField);
-                index = flowFields.Count - 1;
-            }
-            
-            ResetDijkstraData(flowField, destination);
-            GenerateDijkstraData(flowField);
-            return index;
-        }
-
-        public int GenerateFlowField(List<FieldV2> destinations)
-        {
-            FlowFieldNode[] flowField;
-            if (freeFlowField.TryPop(out int index)) {
-                flowField = flowFields[index];
-            } else {
-                flowField = new FlowFieldNode[xLength * zLength];
-                flowFields.Add(flowField);
-                index = flowFields.Count - 1;
-            }
-            
-            ResetDijkstraData(flowField, destinations);
-            GenerateDijkstraData(flowField);
-            return index;
-        }
-
-        private void ResetDijkstraData(FlowFieldNode[] flowField, FieldV2 destination)
+        public void ResetDijkstraData(FlowFieldNode[] flowField, FieldV2 destination)
         {
             Array.Fill(flowField, new FlowFieldNode { distance = int.MaxValue, direction = new FieldV2(0, 0)});
             flowFieldVisit.Clear();
@@ -156,7 +104,7 @@ namespace ST.GridBuilder
             visited.Add(cells[index]);
         }
 
-        private void ResetDijkstraData(FlowFieldNode[] flowField, List<FieldV2> destinations)
+        public void ResetDijkstraData(FlowFieldNode[] flowField, List<FieldV2> destinations)
         {
             Array.Fill(flowField, new FlowFieldNode { distance = int.MaxValue, direction = new FieldV2(0, 0)});
             flowFieldVisit.Clear();
@@ -174,7 +122,7 @@ namespace ST.GridBuilder
             }
         }
 
-        private void GenerateDijkstraData(FlowFieldNode[] flowField)
+        public void GenerateDijkstraData(FlowFieldNode[] flowField)
         {
             while (flowFieldVisit.Count > 0)
             {
