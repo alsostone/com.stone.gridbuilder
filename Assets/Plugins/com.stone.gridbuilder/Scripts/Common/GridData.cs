@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MemoryPack;
 
 namespace ST.GridBuilder
@@ -49,7 +50,21 @@ namespace ST.GridBuilder
 
         [MemoryPackInclude] public CellData[] cells;
         [MemoryPackInclude] public int currentGuid = 0;
-
+        
+        [MemoryPackIgnore] private HashSet<CellData> visited = new HashSet<CellData>(64);
+        private static readonly (int x, int z)[] OrthogonalDirections = 
+        {
+            (-1, 0), (1, 0), (0, -1), (0, 1)
+        };
+        private static readonly (int x, int z)[] DiagonalDirections = 
+        {
+            (-1, -1), (1, -1), (-1, 1), (1, 1)
+        };
+        private static readonly (int x, int z)[] Directions = 
+        {
+            (-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, -1), (-1, 1), (1, 1)
+        };
+        
         public void ResetCells()
         {
             currentGuid = 0;

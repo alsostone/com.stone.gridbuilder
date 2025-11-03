@@ -7,14 +7,7 @@ namespace ST.GridBuilder
     public partial class GridData
     {
         [MemoryPackIgnore] private PriorityQueue<CellData, int> frontier = new ();
-        [MemoryPackIgnore] private HashSet<CellData> visited = new ();
-                
-        private static readonly (int x, int z)[] Directions = 
-        {
-            (-1, 0), (1, 0), (0, -1), (0, 1), // Orthogonal directions
-            (-1, -1), (1, -1), (-1, 1), (1, 1) // Diagonal directions
-        };
-        
+
         public bool Pathfinding(FieldV2 start, FieldV2 to, List<IndexV2> results)
         {
             results.Clear();
